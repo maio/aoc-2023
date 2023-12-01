@@ -16,7 +16,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("com.approvaltests:approvaltests:22.2.1")
-    testImplementation("net.jqwik:jqwik:1.8.1")
+    testImplementation("net.jqwik:jqwik:1.8.2")
 }
 
 tasks {
