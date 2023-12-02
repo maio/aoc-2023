@@ -9,7 +9,7 @@ class Day02Test {
     private val sample = readResource(javaClass, "sample.txt")
 
     private fun computePart1(s: String = input): Int {
-        return getGameLines(s).map { gameLine ->
+        return getGameLines(s).sumOf { gameLine ->
             val isPossible = getSets(gameLine).all { set ->
                 getKindsInASet(set).all { (kind, count) ->
                     isPossible(kind, count)
@@ -17,10 +17,9 @@ class Day02Test {
             }
 
             if (!isPossible) 0 else getGameId(gameLine)
-        }.sum()
+        }
     }
 
-    private fun getGameLines(s: String) = s.lines().filter { it.isNotBlank() }
     private fun isPossible(kind: String, count: Int): Boolean {
         if (kind == "red" && count > 12) return false
         if (kind == "green" && count > 13) return false
@@ -28,8 +27,13 @@ class Day02Test {
         return true
     }
 
-    private fun getGameId(s: String) = s.split(":").first().removePrefix("Game ").toInt()
-    private fun getSets(line: String) = line.split(": ").drop(1).take(1).single().split("; ")
+    private fun getGameLines(s: String) = s.lines().filter { it.isNotBlank() }
+    private fun getGameId(s: String) = s.split(":").first()
+        .removePrefix("Game ").toInt()
+
+    private fun getSets(line: String) = line.split(": ").drop(1).take(1).single()
+        .split("; ")
+
     private fun getKindsInASet(set: String) = set.split(", ").map {
         val (count, kind) = it.split(" ")
         kind to count.toInt()
@@ -51,6 +55,7 @@ class Day02Test {
                 if (kind == "blue") minBlue = minBlue.coerceAtLeast(count)
             }
         }
+
         return minRed.coerceAtLeast(1) *
                 minGreen.coerceAtLeast(1) *
                 minBlue.coerceAtLeast(1)
