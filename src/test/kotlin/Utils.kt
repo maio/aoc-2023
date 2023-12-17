@@ -11,4 +11,6 @@ fun readResource(testClass: Class<*>, name: String): String {
     return readResource("/${testClass.simpleName}/${name}")
 }
 
+fun String.toListOfInts() = trim().split("\\s+".toRegex()).map { it.toInt() }
+
 data class Vec2(val x: Int, val y: Int)
