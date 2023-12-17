@@ -22,10 +22,15 @@ class Day04Test {
 
     private fun computePart2(input: String): Int {
         val parsed = Parsed(input)
-        return computePart2Inner(parsed.cards.size, parsed, parsed.cards.map { it.id })
+
+        return computePart2Inner(
+            parsed = parsed,
+            result = parsed.cards.size,
+            examine = parsed.cards.map { it.id }
+        )
     }
 
-    private tailrec fun computePart2Inner(result: Int = 0, parsed: Parsed, examine: List<Int>): Int {
+    private tailrec fun computePart2Inner(parsed: Parsed, result: Int = 0, examine: List<Int>): Int {
         if (examine.isEmpty()) return result
 
         val winningIds = examine.filter {
@@ -38,7 +43,11 @@ class Day04Test {
             }
         }
 
-        return computePart2Inner(result + wonCardIds.size, parsed, wonCardIds)
+        return computePart2Inner(
+            parsed = parsed,
+            result = result + wonCardIds.size,
+            examine = wonCardIds
+        )
     }
 
     class Parsed(input: String) {
@@ -134,9 +143,5 @@ class Day04Test {
     @Test
     fun `part 2`() {
         assertThat(computePart2(theInput)).isEqualTo(9721255)
-    }
-
-    @Nested
-    inner class UtilsTests {
     }
 }
