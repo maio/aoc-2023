@@ -23,26 +23,29 @@ class Day03Test {
     private fun computePart2(input: String = theInput): Int {
         val parsed = Parsed.parse(input)
 
-        val possibleGears = parsed.symbols.filter { it.symbol == '*' }
-
-        val gears = buildList {
-            possibleGears.forEach { maybeGear ->
-                val numbers = parsed.findNumbersAround(maybeGear)
-
-                if (numbers.size == 2) add(maybeGear to numbers)
+        val possibleGearsWithCloseByNumbers = parsed.symbols
+            .filter { symbol ->
+                symbol.character == '*'
             }
-        }
+            .associateWith { parsed.findNumbersAround(it) }
 
-        return gears.sumOf { (_, numbers) ->
-            numbers.map { number ->
-                number.value
-            }.reduce { result, currentNumber ->
-                result * currentNumber
+        val gears = possibleGearsWithCloseByNumbers
+            .filterValues { numbers ->
+                numbers.size == 2
             }
+
+        return gears.values.sumOf { numbers ->
+            numbers
+                .map { number ->
+                    number.value
+                }
+                .reduce { result, currentNumber ->
+                    result * currentNumber
+                }
         }
     }
 
-    private data class ParsedSymbol(val symbol: Char, val position: Vec2)
+    private data class ParsedSymbol(val character: Char, val position: Vec2)
     private data class ParsedNumber(val position: Vec2, val value: Int)
 
     private class Parsed(input: String) {
@@ -59,14 +62,7 @@ class Day03Test {
             }
         }.toSet()
 
-        val symbols: List<ParsedSymbol>
-            get() {
-                return buildList {
-                    positions.forEach { position ->
-                        findSymbolAt(position)?.let { add(it) }
-                    }
-                }
-            }
+        val symbols: List<ParsedSymbol> = positions.mapNotNull(::findSymbolAt)
 
         private fun findSymbolAt(position: Vec2): ParsedSymbol? {
             if (findDigitAt(position) != null) return null
@@ -74,29 +70,17 @@ class Day03Test {
             val char = findCharAtPosition(position) ?: return null
             if (char == '.') return null
 
-            return ParsedSymbol(symbol = char, position = position)
+            return ParsedSymbol(character = char, position = position)
         }
 
         fun findNumbersAround(symbol: ParsedSymbol): List<ParsedNumber> {
-            return buildList {
-                val position = symbol.position
-                findNumberAt(position.copy(x = position.x + 1))?.let { add(it) }
-                findNumberAt(position.copy(x = position.x - 1))?.let { add(it) }
-                // below
-                findNumberAt(position.copy(y = position.y + 1))?.let { add(it) }
-                findNumberAt(position.copy(x = position.x - 1, y = position.y + 1))?.let { add(it) }
-                findNumberAt(position.copy(x = position.x + 1, y = position.y + 1))?.let { add(it) }
-                // above
-                findNumberAt(position.copy(y = position.y - 1))?.let { add(it) }
-                findNumberAt(position.copy(x = position.x - 1, y = position.y - 1))?.let { add(it) }
-                findNumberAt(position.copy(x = position.x + 1, y = position.y - 1))?.let { add(it) }
-            }.distinct()
+            return symbol.position.neighbours.mapNotNull(::findNumberAt).distinct()
         }
 
         private fun findNumberAt(position: Vec2): ParsedNumber? {
             if (findDigitAt(position) == null) return null
 
-            val toTheRight = position.copy(x = position.x + 1)
+            val toTheRight = position.right()
             if (findDigitAt(toTheRight) == null) {
                 return parseNumberEndingAt(position)
             }
@@ -106,7 +90,7 @@ class Day03Test {
 
         private fun parseNumberEndingAt(position: Vec2): ParsedNumber? {
             val digit = findDigitAt(position) ?: return null
-            val prev = parseNumberEndingAt(position.copy(x = position.x - 1))
+            val prev = parseNumberEndingAt(position.left())
 
             if (prev != null) {
                 return ParsedNumber(prev.position, prev.value * 10 + digit)
