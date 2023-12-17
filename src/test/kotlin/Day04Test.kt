@@ -22,11 +22,11 @@ class Day04Test {
 
     private fun computePart2(input: String): Int {
         val parsed = Parsed(input)
-        return parsed.cards.size + computePart2Inner(parsed, parsed.cards.map { it.id })
+        return computePart2Inner(parsed.cards.size, parsed, parsed.cards.map { it.id })
     }
 
-    private fun computePart2Inner(parsed: Parsed, examine: List<Int>): Int {
-        if (examine.isEmpty()) return 0
+    private tailrec fun computePart2Inner(result: Int = 0, parsed: Parsed, examine: List<Int>): Int {
+        if (examine.isEmpty()) return result
 
         val winningIds = examine.filter {
             parsed.getCardById(it).isWinning
@@ -38,7 +38,7 @@ class Day04Test {
             }
         }
 
-        return wonCardIds.size + computePart2Inner(parsed, wonCardIds)
+        return computePart2Inner(result + wonCardIds.size, parsed, wonCardIds)
     }
 
     class Parsed(input: String) {
@@ -133,7 +133,7 @@ class Day04Test {
 
     @Test
     fun `part 2`() {
-        assertThat(computePart2(theInput)).isEqualTo(12345)
+        assertThat(computePart2(theInput)).isEqualTo(9721255)
     }
 
     @Nested
