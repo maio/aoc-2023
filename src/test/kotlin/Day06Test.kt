@@ -26,11 +26,11 @@ class Day06Test {
         return Parsed2(input).race.let { race ->
             val possibleHoldTimes = (1..<race.time)
 
-            val waysToWin = possibleHoldTimes.filter { holdTime ->
+            val waysToWin = possibleHoldTimes.count { holdTime ->
                 val speed = holdTime
                 (speed * (race.time - holdTime)) >= race.distance
             }
-            waysToWin.size
+            waysToWin
         }
     }
 
